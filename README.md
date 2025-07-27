@@ -1,81 +1,80 @@
-
 # 💻 WinPerfAgent
 
-**WinPerfAgent**, Windows makinelerden sistem performans verilerini toplayan, merkezi bir Flask dashboard'a gönderen ve PostgreSQL'de saklayarak izlenebilir hale getiren açık kaynak ajan + sunucu çözümüdür.
+**WinPerfAgent** is an open-source monitoring solution for Windows systems. It collects system performance data and sends it to a central Flask-based dashboard, storing it in PostgreSQL for real-time and historical analysis.
 
-![WinPerfAgent](https://raw.githubusercontent.com/kullanici_adin/WinPerfAgentServer/main/preview.png)
+<img width="1982" height="1128" alt="image" src="https://github.com/user-attachments/assets/6d4f3bf2-27ff-4712-889c-af7302c163c0" />
 
 ---
 
-## 🚀 Özellikler
+## 🚀 Features
 
-- ✅ Çoklu istemci desteği
-- ✅ Gerçek zamanlı izleme (CPU, RAM, Disk, Ağ, Uptime)
-- ✅ Tavsiye sistemi (yüksek kullanımda öneriler)
-- ✅ Tray uygulaması ve GUI detay ekranı
-- ✅ PostgreSQL tabanlı geçmiş veritabanı
+- ✅ Multi-client support
+- ✅ Real-time monitoring (CPU, RAM, Disk, Network, Uptime)
+- ✅ Intelligent recommendations system
+- ✅ Tray application with GUI interface
+- ✅ PostgreSQL-based historical database
 - ✅ Modern, responsive dashboard (HTML + CSS + Chart.js)
-- ✅ Docker desteği ile kolay kurulum
+- ✅ Easy deployment via Docker
 
 ---
 
-## 📁 Proje Yapısı
+## 📁 Project Structure
 
 ```
 WinPerfAgent/
-├── agent.py                # Tray uygulaması (Windows ajan)
-├── app.py                  # Flask sunucu
-├── db.py                   # PostgreSQL işlemleri
-├── monitor.py              # Sistem verisi toplama
-├── recommender.py          # Otomatik öneri üretici
+├── agent.py                # Tray agent for Windows
+├── app.py                  # Flask server
+├── db.py                   # PostgreSQL operations
+├── monitor.py              # System metrics collection
+├── recommender.py          # Recommendation engine
 ├── requirements.txt
 ├── docker-compose.yml
 ├── Dockerfile
-├── static/                 # CSS / JS dosyaları
-├── templates/              # HTML sayfaları
-├── updates/                # (Opsiyonel) güncelleme klasörü
+├── static/                 # CSS / JS assets
+├── templates/              # HTML views
+├── updates/                # (Optional) Update mechanism
 ├── VERSION
 └── README.md
 ```
 
 ---
 
-## ⚙️ Sunucu Kurulumu
+## ⚙️ Server Setup
 
-### Seçenek 1: 🐳 Docker (Önerilir)
+### Option 1: 🐳 Docker (Recommended)
 
 ```bash
-git clone https://github.com/kullanici_adin/WinPerfAgentServer.git
+git clone https://github.com/samet-y/WinPerfAgentServer.git
 cd WinPerfAgentServer
 docker-compose up -d
 ```
 
-- `http://localhost:5000` adresinden dashboard'a erişebilirsin
+- Access the dashboard via `http://localhost:5000`
 
 ---
 
-### Seçenek 2: Manuel Kurulum (Geliştirici Modu)
+### Option 2: Manual Setup (For Developers)
 
-> 🧠 Gerekenler: Python 3.10+ ve PostgreSQL 13+
+> 🧠 Requirements: Python 3.10+ and PostgreSQL 13+
 
 ```bash
-# 1. Projeyi klonla
-git clone https://github.com/kullanici_adin/WinPerfAgentServer.git
+# 1. Clone the repository
+git clone https://github.com/samet-y/WinPerfAgentServer.git
 cd WinPerfAgentServer
 
-# 2. Sanal ortam oluştur
+# 2. Create virtual environment
 python -m venv venv
 source venv/bin/activate
 
-# 3. Gereksinimleri yükle
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. PostgreSQL yapılandır
+# 4. Install and configure PostgreSQL
 sudo apt install postgresql
 sudo -u postgres psql
 ```
 
-SQL shell içinde:
+In PostgreSQL shell:
 
 ```sql
 CREATE DATABASE winperf;
@@ -83,19 +82,19 @@ CREATE USER admin WITH PASSWORD 'secret';
 GRANT ALL PRIVILEGES ON DATABASE winperf TO admin;
 ```
 
-Ardından `.env` oluştur:
+Then create `.env` file:
 
 ```
 DATABASE_URL=postgresql://admin:secret@localhost:5432/winperf
 ```
 
-Veritabanını başlat:
+Initialize the database:
 
 ```bash
 python db.py
 ```
 
-Sunucuyu başlat:
+Start the Flask server:
 
 ```bash
 python app.py
@@ -103,33 +102,33 @@ python app.py
 
 ---
 
-## 🖥️ Windows Ajan Kurulumu
+## 🖥️ Windows Agent Setup
 
-### Seçenek 1: Python ile Çalıştır
+### Option 1: Run with Python
 
-> Gerekli: Python 3.10+
+> Requires Python 3.10+
 
 ```bash
 pip install -r requirements.txt
 python agent.py
 ```
 
-- Tray icon sistem çubuğunda görünür
-- Üzerine çift tıklayarak detayları görebilirsin
+- Tray icon will appear
+- Double-click to open GUI with system details
 
-### Seçenek 2: `.exe` Formatında
+### Option 2: Build `.exe` Executable
 
 ```bash
 pip install pyinstaller
 pyinstaller agent.py --noconsole --onefile --name WinPerfAgent
 ```
 
-- `dist/WinPerfAgent.exe` dosyasını çalıştır
-- Başlangıç klasörüne kısayol ekleyerek otomatik başlatma yapılabilir
+- Run `dist/WinPerfAgent.exe`
+- Optionally add shortcut to startup folder for auto-run
 
 ---
 
-## 🔧 Ajan Ayarları (`agent_config.json`)
+## 🔧 Agent Configuration (`agent_config.json`)
 
 ```json
 {
@@ -141,9 +140,9 @@ pyinstaller agent.py --noconsole --onefile --name WinPerfAgent
 
 ---
 
-## 🧠 Tavsiye Sistemi
+## 🧠 Recommendation Engine
 
-`recommender.py` ile yüksek CPU/RAM/Disk kullanımı tespit edilip öneri üretir:
+Recommendations are automatically generated based on high CPU, RAM or Disk usage:
 
 ```text
 High CPU usage detected (93%). Consider closing 'chrome.exe'.
@@ -151,32 +150,37 @@ High CPU usage detected (93%). Consider closing 'chrome.exe'.
 
 ---
 
-## 🧪 Veritabanı Yapısı
+## 🧪 Database Structure
 
-- `reports` → geçmiş veriler
-- `clients_current` → anlık cihaz durumu
-- `cleanup_old_data()` fonksiyonu ile eski loglar temizlenebilir
-
----
-
-## 📡 API Endpoint’ler
-
-| Yöntem | URL                            | Açıklama                         |
-|--------|--------------------------------|----------------------------------|
-| POST   | `/api/report`                 | Ajan veri gönderir               |
-| GET    | `/api/clients`                | Tüm aktif istemcileri döner      |
-| GET    | `/api/reports`                | Tüm geçmiş veriler               |
-| GET    | `/api/client/<hostname>`      | Belirli cihaz geçmişi            |
-| GET    | `/api/health`                 | Sağlık kontrolü                  |
+- `reports` → all incoming agent reports
+- `clients_current` → latest snapshot per client
+- `cleanup_old_data()` → cleans up outdated logs
 
 ---
 
-## 📸 Ekran Görüntüsü
+## 📡 API Endpoints
 
-![WinPerfAgent Dashboard](https://raw.githubusercontent.com/kullanici_adin/WinPerfAgentServer/main/preview-dashboard.png)
+| Method | URL                            | Description                    |
+|--------|--------------------------------|--------------------------------|
+| POST   | `/api/report`                 | Agent sends system report      |
+| GET    | `/api/clients`                | Returns all active clients     |
+| GET    | `/api/reports`                | Returns full report history    |
+| GET    | `/api/client/<hostname>`      | Returns data for one client    |
+| GET    | `/api/health`                 | Server health check            |
 
 ---
 
-## 🧾 Lisans
+## 📸 Screenshots
 
-MIT Lisansı ile lisanslanmıştır. Tüm ticari ve kişisel projelerde kullanılabilir.
+<img width="1982" height="1128" alt="image" src="https://github.com/user-attachments/assets/6d4f3bf2-27ff-4712-889c-af7302c163c0" />
+<img width="1001" height="1194" alt="image" src="https://github.com/user-attachments/assets/7fef791e-761c-489c-a2b0-5a920ae27940" />
+<img width="1619" height="1218" alt="image" src="https://github.com/user-attachments/assets/875fc554-0b3d-4481-81d9-71922baac904" />
+<img width="692" height="627" alt="image" src="https://github.com/user-attachments/assets/a75b13b1-56d1-41b4-9501-8ae80939e2b1" />
+<img width="691" height="629" alt="image" src="https://github.com/user-attachments/assets/929226bc-643c-4b6f-99dd-fdbc11d623b3" />
+
+
+---
+
+## 🧾 License
+
+This project is licensed under the MIT License and can be freely used in commercial or personal projects.
