@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>System Reports - WinPerfAgent</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+  <div class="header">
+    <h1>📊 System Reports</h1>
+    <a href="/">← Back to Dashboard</a>
+  </div>
+
+  <div style="max-width: 1200px; margin: auto;">
+    <label for="deviceSelector" style="font-weight:600;">Select Device:</label>
+    <select id="deviceSelector" style="margin: 10px 0 30px;"></select>
+
+    <canvas id="cpuChart" height="120" style="margin-bottom:40px; background: white; border-radius: 8px;"></canvas>
+    <canvas id="memoryChart" height="120" style="margin-bottom:40px; background: white; border-radius: 8px;"></canvas>
+    <canvas id="diskChart" height="120" style="margin-bottom:40px; background: white; border-radius: 8px;"></canvas>
+  </div>
+
+  <script>
+    let cpuChart, memoryChart, diskChart;
+
+    async function loadReports() {
+      const res = await fetch("/api/reports");
+      const raw = await res.json();
+
+      const grouped = {};
+      raw.forEach(entry => {
+        const host = entry.hostname;
+        if (!host) return;
+        if (!grouped[host]) grouped[host] = [];
+        grouped[host].push(entry);
+      });
+
+      const selector = document.getElementById("deviceSelector");
+      selector.innerHTML = "";
+
+      const hosts = Object.keys(grouped);
+      if (hosts.length === 0) {
+        const opt = document.createElement("option");
+        opt.textContent = "No devices found";
+        opt.disabled = true;
+        selector.appendChild(opt);
+        return;
+      }
+
+      hosts.forEach(host => {
+        const opt = document.createElement("option");
+        opt.value = host;
+        opt.textContent = host;
+        selector.appendChild(opt);
+      });
+
+      selector.addEventListener("change", () => {
+        renderCharts(grouped[selector.value]);
+      });
+
+      selector.selectedIndex = 0;
+      renderCharts(grouped[selector.value]);
+    }
+
+    function renderCharts(entries) {
+      const labels = entries.map(e => new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      const cpuData = entries.map(e => e.cpu_percent);
+      const memData = entries.map(e => e.memory_percent);
+      const diskData = entries.map(e => e.disk_percent ?? 0);
+
+      if (cpuChart) cpuChart.destroy();
+      if (memoryChart) memoryChart.destroy();
+      if (diskChart) diskChart.destroy();
+
+      const chartOptions = (titleText, yLabel, borderColor, backgroundColor) => ({
+        responsive: true,
+        plugins: {
+          legend: { labels: { font: { size: 14 } } },
+          title: {
+            display: true,
+            text: titleText,
+            font: { size: 18 }
+          }
+        },
+        scales: {
+          x: {
+            ticks: {
+              autoSkip: true,
+              maxTicksLimit: 10,
+              font: { size: 12 }
+            }
+          },
+          y: {
+            min: 0,
+            max: 100,
+            title: {
+              display: true,
+              text: yLabel,
+              font: { size: 14 }
+            },
+            ticks: { font: { size: 12 } }
+          }
+        }
+      });
+
+      cpuChart = new Chart(document.getElementById("cpuChart").getContext("2d"), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'CPU Usage (%)',
+            data: cpuData,
+            borderColor: '#3182ce',
+            backgroundColor: 'rgba(49,130,206,0.2)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: chartOptions('CPU Usage Over Time', '% CPU', '#3182ce', 'rgba(49,130,206,0.2)')
+      });
+
+      memoryChart = new Chart(document.getElementById("memoryChart").getContext("2d"), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Memory Usage (%)',
+            data: memData,
+            borderColor: '#38a169',
+            backgroundColor: 'rgba(56,161,105,0.2)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: chartOptions('Memory Usage Over Time', '% Memory', '#38a169', 'rgba(56,161,105,0.2)')
+      });
+
+      diskChart = new Chart(document.getElementById("diskChart").getContext("2d"), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Disk Usage (%)',
+            data: diskData,
+            borderColor: '#ed8936',
+            backgroundColor: 'rgba(237,137,54,0.2)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: chartOptions('Disk Usage Over Time', '% Disk', '#ed8936', 'rgba(237,137,54,0.2)')
+      });
+    }
+
+    loadReports();
+  </script>
+</body>
+</html>

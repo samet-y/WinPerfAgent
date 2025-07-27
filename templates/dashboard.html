@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WinPerfAgent - Multi-Client Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+  <div class="header">
+    <h1>🌐 WinPerfAgent</h1>
+    <div class="subtitle">Real-time System Monitoring Dashboard</div>
+  </div>
+
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-item">
+      <div class="stat-number" id="totalClients">0</div>
+      <div class="stat-label">Total Clients</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="onlineClients">0</div>
+      <div class="stat-label">Online</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="avgCpu">0%</div>
+      <div class="stat-label">Avg CPU</div>
+    </div>
+  </div>
+
+  <div class="grid" id="clientGrid">
+    <div class="loading">Loading clients...</div>
+  </div>
+
+  <div class="last-updated" id="lastUpdated">
+    Last updated: Never
+  </div>
+
+  <!-- Modal for client details -->
+  <div id="clientDetailsModal">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <div id="clientDetailsContent"></div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

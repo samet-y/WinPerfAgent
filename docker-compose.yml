@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: winperf
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://admin:secret@winperf-db:5432/winperf
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: winperf-db
+    restart: always
+    environment:
+      POSTGRES_DB: winperf
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
